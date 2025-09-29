@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-use function Laravel\Prompts\password;
-
 class AuthController extends Controller
 {
+    public function Index()
+    {
+        return response()->json(User::all(), 200);
+    }
+
     public function Register(Request $request)
     {
         $request->validate([

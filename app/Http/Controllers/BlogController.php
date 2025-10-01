@@ -47,7 +47,11 @@ class BlogController extends Controller
         if (!$blog) {
             return response()->json(['message' => 'slug not found'], 404);
         }
-        return response()->json($blog, 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Article created successfully',
+            'data' => $blog
+        ], 201);
     }
     public function store(Request $request)
     {
@@ -103,9 +107,9 @@ class BlogController extends Controller
         return response()->json($blog, 200);
     }
 
-    public function destroy($id)
+    public function destroy($slug)
     {
-        $blog = Blog::find($id);
+        $blog = Blog::where('slug',  $slug)->first();
         if (!$blog) {
             return response()->json(['message' => 'Blog not found'], 404);
         }

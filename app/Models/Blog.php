@@ -15,7 +15,6 @@ class Blog extends Model
         'short_desc',
         'content',
         'image',
-        'image_url',
         'author_id',
         'category_id',
         'tags',
@@ -26,6 +25,8 @@ class Blog extends Model
         'tags' => 'array',
         'published_date' => 'date',
     ];
+
+    protected $appends = ['image_url'];
 
     public function author()
     {

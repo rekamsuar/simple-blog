@@ -3,7 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CategoryController;
-use App\Models\Category;
+use App\Http\Controllers\PageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,4 +34,14 @@ Route::prefix('categories')->group(function () {
         Route::put('/{id}', [CategoryController::class, 'update']);
         Route::delete('/{id}', [CategoryController::class, 'destroy']);
     });
+});
+
+Route::prefix('pages')->group(function () {
+    Route::get('/', [PageController::class, 'index']);
+    Route::get('/{slug}', [PageController::class, 'show']);
+    Route::post('/', [PageController::class, 'store'])->middleware('auth:sanctum');
+    Route::patch('/{slug}', [PageController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{slug}', [PageController::class, 'destroy'])->middleware('auth:sanctum');
+
+    Route::post('/{slug}/view', [PageController::class, 'addView']);
 });

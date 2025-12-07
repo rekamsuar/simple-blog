@@ -61,7 +61,7 @@ class BlogController extends Controller
             'content' => 'required',
             'image' => 'required|image|mimes:jpeg,png,webp|max:2048',
             // 'image_url' => 'nullable|url|max:500',
-            'author_id' => 'required',
+            // 'author_id' => 'required',
             'category_id' => 'required',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',

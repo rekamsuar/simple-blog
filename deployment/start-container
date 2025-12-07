@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+set -e
+
+container_mode=${CONTAINER_MODE:-"http"}
+octane_server=${OCTANE_SERVER}
+running_migrations_and_seeders=${RUNNING_MIGRATIONS_AND_SEEDERS:-"false"}
+with_migration=${WITH_MIGRATION:-"false"}
+
+echo "Container mode: $container_mode"
+
+initialStuff() {
+    php artisan key:generate; \
+    php artisan storage:link; \
+    php artisan config:clear; \
+    php artisan route:clear; \
+    php artisan cache:clear;
+
+    if [ "${with_migration}" = "true" ]; then
+        echo "Running migrations ..."
+        php artisan migrate --isolated --force;
+    fi
+
+    if [ "${running_migrations_and_seeders}" = "true" ]; then
+        echo "Running migrations and seeding database ..."
+        php artisan migrate --isolated --seed --force;
+    fi
+}
+
+if [ "$1" != "" ]; then
+    exec "$@"
+else
+    echo "Octane Server: $octane_server"
+    initialStuff
+    exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+fi

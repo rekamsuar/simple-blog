@@ -1,0 +1,42 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  docker_build:
+    runs-on: blog-runner
+    name: Docker Image Build
+    steps:
+      - uses: actions/checkout@v2
+      - name: "Create env file"
+        run: |
+          echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
+      - name: Build Docker image
+        run: |
+          docker build -t blog/backend:${{github.ref_name}} .
+          docker image prune --filter="dangling=true" --force
+  deploy:
+    runs-on: blog-runner
+    name: Continuous Deployment
+    needs: [docker_build]
+    steps:
+      - name: Deploy using ssh
+        run: |
+          if [[ "$(docker ps -a -f name=blog-backend | grep -o blog-backend)" == "blog-backend" ]];\
+          then echo "container exist"; echo "killing it!";\
+          docker rm blog-backend --force;\
+          else echo "container not found";\
+          fi \
+          && \
+          docker run -d --name=blog-backend \
+          -e WITH_MIGRATION=true \
+          --network=genah-network \
+          -p 8008:8000 \
+          -v /var/storage/blog/public:/var/www/html/storage/app/public \
+          -v /var/storage/blog/app:/var/www/html/storage/app \
+          --restart always \
+          blog/backend:${{github.ref_name}} &&
+          docker container prune --force &&
+          docker image prune --force

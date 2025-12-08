@@ -133,9 +133,6 @@ RUN chmod +x /usr/local/bin/start-container /usr/local/bin/healthcheck
 RUN cat deployment/utilities.sh >> ~/.bashrc
 
 EXPOSE 8000
-EXPOSE 443
-EXPOSE 443/udp
-EXPOSE 2019
 
 ENTRYPOINT ["start-container"]
 

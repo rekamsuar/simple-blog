@@ -6,7 +6,7 @@ on:
       - 'main'
 jobs:
   docker_build:
-    runs-on: blog-runner
+    runs-on: blog
     name: Docker Image Build
     steps:
       - uses: actions/checkout@v2
@@ -15,28 +15,28 @@ jobs:
           echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
       - name: Build Docker image
         run: |
-          docker build -t blog/backend:${{github.ref_name}} .
+          docker build -t simple/blog:${{github.ref_name}} .
           docker image prune --filter="dangling=true" --force
   deploy:
-    runs-on: blog-runner
+    runs-on: blog
     name: Continuous Deployment
     needs: [docker_build]
     steps:
       - name: Deploy using ssh
         run: |
-          if [[ "$(docker ps -a -f name=blog-backend | grep -o blog-backend)" == "blog-backend" ]];\
+          if [[ "$(docker ps -a -f name=simple-blog | grep -o simple-blog)" == "simple-blog" ]];\
           then echo "container exist"; echo "killing it!";\
-          docker rm blog-backend --force;\
+          docker rm simple-blog --force;\
           else echo "container not found";\
           fi \
           && \
-          docker run -d --name=blog-backend \
+          docker run -d --name=simple-blog \
           -e WITH_MIGRATION=true \
           --network=genah-network \
           -p 8008:8000 \
           -v /var/storage/blog/public:/var/www/html/storage/app/public \
           -v /var/storage/blog/app:/var/www/html/storage/app \
           --restart always \
-          blog/backend:${{github.ref_name}} &&
+          simple/blog:${{github.ref_name}} &&
           docker container prune --force &&
           docker image prune --force

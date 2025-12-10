@@ -44,4 +44,5 @@ Route::prefix('pages')->group(function () {
     Route::delete('/{slug}', [PageController::class, 'destroy'])->middleware('auth:sanctum');
 
     Route::post('/{slug}/view', [PageController::class, 'addView']);
+    // 
 });

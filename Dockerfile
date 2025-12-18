@@ -32,9 +32,8 @@ SHELL ["/bin/sh", "-eou", "pipefail", "-c"]
 RUN ln -snf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo ${TZ} > /etc/timezone
 
-RUN apk update; \
-    apk upgrade; \
-    apk add --no-cache \
+# Install dependencies needed for PHP extensions
+RUN apk update && apk add --no-cache \
     curl \
     wget \
     nano \
@@ -44,27 +43,28 @@ RUN apk update; \
     ca-certificates \
     supervisor \
     libsodium-dev \
-    # Install PHP extensions 
-    && install-php-extensions \
+    icu-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    libwebp-dev \
+    freetype-dev \
+    libzip-dev \
+    zlib-dev
+
+# Install PHP extensions
+RUN install-php-extensions \
     bz2 \
     pcntl \
     mbstring \
     bcmath \
     sockets \
-    pgsql \
-    pdo_pgsql \
+    pdo_mysql \
     opcache \
     exif \
-    pdo_mysql \
     zip \
     intl \
-    gd \
-    redis \
-    memcached \
-    igbinary \
-    swoole \
-    && docker-php-source delete \
-    && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
+    gd
+
 
 RUN arch="$(apk --print-arch)" \
     && case "$arch" in \

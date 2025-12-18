@@ -15,7 +15,7 @@ jobs:
           echo "${{ secrets.PRODUCTION_ENV_FILE }}" > .env
       - name: Build Docker image
         run: |
-          docker build -t simple/blog:${{github.ref_name}} .
+          docker build -t blog:${{github.ref_name}} .
           docker image prune --filter="dangling=true" --force
   deploy:
     runs-on: blog
@@ -24,19 +24,19 @@ jobs:
     steps:
       - name: Deploy using ssh
         run: |
-          if [[ "$(docker ps -a -f name=simple-blog | grep -o simple-blog)" == "simple-blog" ]];\
+          if [[ "$(docker ps -a -f name=blog | grep -o blog)" == "blog" ]];\
           then echo "container exist"; echo "killing it!";\
-          docker rm simple-blog --force;\
+          docker rm blog --force;\
           else echo "container not found";\
           fi \
           && \
-          docker run -d --name=simple-blog \
+          docker run -d --name=blog \
           -e WITH_MIGRATION=true \
-          --network=genah-network \
+          --network=blog-network \
           -p 8008:8000 \
           -v /var/storage/blog/public:/var/www/html/storage/app/public \
           -v /var/storage/blog/app:/var/www/html/storage/app \
           --restart always \
-          simple/blog:${{github.ref_name}} &&
+          blog:${{github.ref_name}} &&
           docker container prune --force &&
           docker image prune --force

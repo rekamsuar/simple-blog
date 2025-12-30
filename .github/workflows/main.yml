@@ -36,7 +36,7 @@ jobs:
           -p 8008:8000 \
           -v /var/storage/blog/public:/var/www/html/storage/app/public \
           -v /var/storage/blog/app:/var/www/html/storage/app \
-          -v .env:/var/www/html/.env \
+          -v ./.env:/var/www/html/.env \
           --restart always \
           blog:${{github.ref_name}} &&
           docker container prune --force &&

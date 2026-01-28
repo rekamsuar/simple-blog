@@ -6,7 +6,7 @@ on:
       - 'main'
 jobs:
   docker_build:
-    runs-on: blog
+    runs-on: blog-runner
     name: Docker Image Build
     steps:
       - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
           docker build -t blog:${{github.ref_name}} .
           docker image prune --filter="dangling=true" --force
   deploy:
-    runs-on: blog
+    runs-on: blog-runner
     name: Continuous Deployment
     needs: [docker_build]
     steps:
@@ -36,8 +36,7 @@ jobs:
           -p 8008:8000 \
           -v /var/storage/blog/public:/var/www/html/storage/app/public \
           -v /var/storage/blog/app:/var/www/html/storage/app \
-          -v ./.env:/var/www/html/.env \
           --restart always \
           blog:${{github.ref_name}} &&
           docker container prune --force &&
-          docker image prune --force
+          docker image prune --force 

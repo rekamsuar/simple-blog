@@ -1,28 +1,35 @@
 #!/usr/bin/env sh
 set -e
 
-wait_for_db() {
-  echo "Waiting for database at $DB_HOST..."
-  until nc -z "$DB_HOST" "${DB_PORT:-3306}"; do
-    sleep 2
-  done
-  echo "Database is ready!"
-}
+container_mode=${CONTAINER_MODE:-"http"}
+octane_server=${OCTANE_SERVER}
+running_migrations_and_seeders=${RUNNING_MIGRATIONS_AND_SEEDERS:-"false"}
+with_migration=${WITH_MIGRATION:-"false"}
+
+echo "Container mode: $container_mode"
 
 initialStuff() {
-  php artisan key:generate --force || true
-  php artisan storage:link || true
+    php artisan key:generate; \
+    php artisan storage:link; \
+    php artisan config:clear; \
+    php artisan route:clear; \
+    php artisan cache:clear;
 
-  php artisan config:clear
-  php artisan route:clear
-  php artisan cache:clear
+    if [ "${with_migration}" = "true" ]; then
+        echo "Running migrations ..."
+        php artisan migrate --isolated --force;
+    fi
 
-  if [ "${WITH_MIGRATION}" = "true" ]; then
-    wait_for_db
-    php artisan migrate --force --isolated
-  fi
+    if [ "${running_migrations_and_seeders}" = "true" ]; then
+        echo "Running migrations and seeding database ..."
+        php artisan migrate --isolated --seed --force;
+    fi
 }
 
-echo "Octane Server: $OCTANE_SERVER"
-initialStuff
-exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+if [ "$1" != "" ]; then
+    exec "$@"
+else
+    echo "Octane Server: $octane_server"
+    initialStuff
+    exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+fi

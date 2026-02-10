@@ -31,7 +31,6 @@ jobs:
           fi \
           && \
           docker run -d --name=blog \
-          --env-file /etc/secrets/blog.env \
           -e WITH_MIGRATION=true \
           --network=blog-network \
           -p 8008:8000 \
